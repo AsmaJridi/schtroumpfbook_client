@@ -1,0 +1,91 @@
+<div class="container">
+  <div class="row">
+    <div class="col-6"><img src="../assets/images/4.jpeg" width="100%" /></div>
+    <div class="col-6">
+      <h1 class="form-signin-heading mt-4 mb-4">Mon profil</h1>
+      <label for="name" class="form-label">Nom complet</label>
+      <div class="input-group mb-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Nom complet"
+          [(ngModel)]="details.name"
+          aria-label="name"
+        />
+      </div>
+
+      <label for="email" class="form-label">Adresse email</label>
+      <div class="input-group mb-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Adresse email"
+          [(ngModel)]="details.email"
+          aria-label="email"
+        />
+      </div>
+
+      <label for="role" class="form-label">Role</label>
+      <div class="input-group mb-3">
+        <select
+          [(ngModel)]="details.role"
+          class="form-select form-select-lg mb-3"
+          aria-label="Role"
+        >
+          <option *ngFor="let role of ROLES; index as i" value="{{ role }}">
+            {{ role }}
+          </option>
+        </select>
+      </div>
+      <label for="friends" class="form-label">Les amis</label>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Nom complet</th>
+            <th scope="col">Adresse email</th>
+            <th scope="col">Role</th>
+            <th scope="col">Supprimer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let friend of details.friends; index as i">
+            <td>{{ friend.name }}</td>
+            <td>{{ friend.email }}</td>
+            <td>{{ friend.role }}</td>
+            <td>
+              <button (click)="remove(friend._id)" class="btn btn-danger">
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <label for="newFriend" class="form-label">Ajouter des amis</label>
+      <div class="input-group mb-3">
+        <select
+          [(ngModel)]="newFriend"
+          class="form-select form-select-lg mb-3"
+          aria-label="newFriend"
+        >
+          <option value="">Sélectionner</option>
+          <ng-container *ngFor="let friend of users; index as i">
+            <option *ngIf="friend._id !== details._id && !friendIds.includes(friend._id)" value="{{ friend._id }}">
+              {{ friend.name }}
+            </option>
+          </ng-container>
+        </select>
+      </div>
+
+      <button class="mt-2" (click)="update()" class="btn btn-primary">
+        Sauvegarder
+      </button>
+      <div *ngIf="message != '' "class="mt-2" >
+        
+        <ngb-alert [dismissible]="false" type="success">
+          <strong>Info:</strong> {{ message }}
+        </ngb-alert>
+      </div>
+    </div>
+  </div>
+</div>
