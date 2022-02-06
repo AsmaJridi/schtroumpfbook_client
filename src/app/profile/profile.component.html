@@ -9,7 +9,7 @@
           type="text"
           class="form-control"
           placeholder="Nom complet"
-          [(ngModel)]="details.name"
+          [(ngModel)]="userModel.name"
           aria-label="name"
         />
       </div>
@@ -20,7 +20,7 @@
           type="text"
           class="form-control"
           placeholder="Adresse email"
-          [(ngModel)]="details.email"
+          [(ngModel)]="userModel.email"
           aria-label="email"
         />
       </div>
@@ -28,7 +28,7 @@
       <label for="role" class="form-label">Role</label>
       <div class="input-group mb-3">
         <select
-          [(ngModel)]="details.role"
+          [(ngModel)]="userModel.role"
           class="form-select form-select-lg mb-3"
           aria-label="Role"
         >
@@ -37,7 +37,8 @@
           </option>
         </select>
       </div>
-      <label for="friends" class="form-label">Les amis</label>
+      <hr class="mb-3 mt-3">
+      <label for="friends" class="form-label"><b>Les amis</b></label>
       <table class="table">
         <thead>
           <tr>
@@ -48,7 +49,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let friend of details.friends; index as i">
+          <tr *ngFor="let friend of userModel.friends; index as i">
             <td>{{ friend.name }}</td>
             <td>{{ friend.email }}</td>
             <td>{{ friend.role }}</td>
@@ -61,16 +62,21 @@
         </tbody>
       </table>
 
-      <label for="newFriend" class="form-label">Ajouter des amis</label>
+      <label for="newFriendModel" class="form-label"><b>Ajouter un ami</b></label>
       <div class="input-group mb-3">
         <select
-          [(ngModel)]="newFriend"
+          [(ngModel)]="newFriendModel"
           class="form-select form-select-lg mb-3"
-          aria-label="newFriend"
+          aria-label="newFriendModel"
         >
           <option value="">Sélectionner</option>
           <ng-container *ngFor="let friend of users; index as i">
-            <option *ngIf="friend._id !== details._id && !friendIds.includes(friend._id)" value="{{ friend._id }}">
+            <option
+              *ngIf="
+                friend._id !== userModel._id && !friendIds.includes(friend._id)
+              "
+              value="{{ friend._id }}"
+            >
               {{ friend.name }}
             </option>
           </ng-container>
@@ -80,8 +86,50 @@
       <button class="mt-2" (click)="update()" class="btn btn-primary">
         Sauvegarder
       </button>
-      <div *ngIf="message != '' "class="mt-2" >
-        
+  
+   
+       <hr class="mb-3 mt-3">
+    
+      <label for="newFriendModel" class="form-label"
+        ><b>Ajouter un utilisateur</b></label
+      >
+      <form (submit)="addUser()">
+        <div class="form-group">
+          <label for="name">Nom complet</label>
+          <input
+            type="text"
+            class="form-control"
+            name="name"
+            placeholder="Enter your name"
+            [(ngModel)]="newUserModel.name"
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">Adresse email</label>
+          <input
+            type="email"
+            class="form-control"
+            name="email"
+            placeholder="Enter email"
+            [(ngModel)]="newUserModel.email"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot magique</label>
+          <input
+            type="password"
+            class="form-control"
+            name="password"
+            placeholder="Password"
+            [(ngModel)]="newUserModel.password"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">
+          Ajouter
+        </button>
+      </form>
+      <hr class="mb-3 mt-3">
+      <div *ngIf="message != ''" class="mt-2">
         <ngb-alert [dismissible]="false" type="success">
           <strong>Info:</strong> {{ message }}
         </ngb-alert>

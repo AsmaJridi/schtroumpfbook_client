@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthenticationService, UserDetails } from '../authentication.service';
+import {
+  AuthenticationService,
+  TokenPayload,
+  UserDetails,
+} from '../authentication.service';
 
 @Component({
   selector: 'app-profile',
@@ -7,7 +11,8 @@ import { AuthenticationService, UserDetails } from '../authentication.service';
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit {
-  details: UserDetails = {
+  //La personne connectée
+  userModel: UserDetails = {
     _id: '',
     email: '',
     name: '',
@@ -16,10 +21,13 @@ export class ProfileComponent implements OnInit {
     exp: 0,
     iat: 0,
   };
+  //la list du select d'ajout d'amis
   users: UserDetails[] = [];
+  //le choix du select d'ajout d'amis
+  newFriendModel: string = '';
+  //les ids des amis de la personne connectée
   friendIds: string[] = [];
-  newFriend: string = '';
-  message: string = '';
+  //la list du select du role
   ROLES: string[] = [
     'Apprenti',
     'Guerrier',
@@ -28,13 +36,20 @@ export class ProfileComponent implements OnInit {
     'Espion',
     'Enchanteur',
   ];
+  //le nouveau utilisateur
+  newUserModel: TokenPayload = {
+    email: '',
+    name: '',
+    password: '',
+  };
 
+  message: string = '';
   constructor(private auth: AuthenticationService) {}
 
   ngOnInit() {
     this.auth.profile().subscribe(
       (user) => {
-        this.details = user;
+        this.userModel = user;
       },
       (err) => {
         console.error(err);
@@ -51,17 +66,23 @@ export class ProfileComponent implements OnInit {
   }
 
   update() {
-    let data: any = { ...this.details };
-    this.friendIds = this.details.friends.map(function (friend) {
+    this.friendIds = this.userModel.friends.map(function (friend) {
       return friend._id;
     });
-    if (this.newFriend !== '' && !this.friendIds.includes(this.newFriend)) {
-      this.friendIds.push(this.newFriend);
+
+    if (
+      this.newFriendModel !== '' &&
+      !this.friendIds.includes(this.newFriendModel)
+    ) {
+      this.friendIds.push(this.newFriendModel);
     }
+    //créer une copie de this.userModel
+    let data: any = {...this.userModel};
     data.friends = this.friendIds;
+
     this.auth.update(data).subscribe(
       (user) => {
-        this.details = user;
+        this.userModel = user;
         this.message = 'Profile mis à jour';
       },
       (err) => {
@@ -71,19 +92,36 @@ export class ProfileComponent implements OnInit {
   }
 
   remove(id: string) {
-    let data: any = { ...this.details };
-    this.friendIds = this.details.friends.map(function (friend) {
+    this.friendIds = this.userModel.friends.map(function (friend) {
       return friend._id;
     });
+    //laisser uniquement les friendId qui sont différents de id
     this.friendIds = this.friendIds.filter(function (friendId) {
       return friendId !== id;
     });
+
+    let data: any = {...this.userModel};
     data.friends = this.friendIds;
+    
     this.auth.update(data).subscribe(
       (user) => {
-        this.details = user;
+        this.userModel = user;
         this.message = 'Ami supprimé';
       },
+      (err) => {
+        console.error(err);
+      }
+    );
+  }
+
+  addUser() {
+    this.auth.invite(this.newUserModel).subscribe(
+      (user) => {
+        this.userModel = user;
+        this.newUserModel = { name: '', email: '', password: '' };
+        this.message = "Utilisateur créé et ajouté à la liste d'amis";
+      },
+
       (err) => {
         console.error(err);
       }

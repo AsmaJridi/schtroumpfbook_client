@@ -107,6 +107,10 @@ export class AuthenticationService {
     return this.request('post', 'user/update', user);
   }
 
+  public invite(user: TokenPayload): Observable<any> {
+    return this.request('post', 'user/invite', user);
+  }
+
   public users(): Observable<any> {
     return this.request('get', 'user/list');
   }
