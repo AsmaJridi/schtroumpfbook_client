@@ -8,9 +8,22 @@ export interface UserDetails {
   email: string;
   name: string;
   role: string;
-  friends: UserDetails[];
+  friendships: FriendshipDetails[];
   exp: number;
   iat: number;
+}
+
+export interface FriendDetails {
+  _id: string;
+  relationship: string;
+}
+
+export interface FriendshipDetails {
+  _id: string;
+  requester: UserDetails;
+  recipient: UserDetails;
+  relationship: String;
+  status: Number;
 }
 
 interface TokenResponse {
@@ -21,6 +34,7 @@ export interface TokenPayload {
   email: string;
   password: string;
   name?: string;
+  relationship?: string;
 }
 
 @Injectable()
@@ -65,12 +79,17 @@ export class AuthenticationService {
   private request(
     method: 'post' | 'get',
     type: any,
-    user?: TokenPayload | UserDetails
+    data?:
+      | TokenPayload
+      | UserDetails
+      | FriendshipDetails
+      | FriendDetails
+      | string
   ): Observable<any> {
     let base;
 
     if (method === 'post') {
-      base = this.http.post(`/api/${type}`, user, {
+      base = this.http.post(`/api/${type}`, data, {
         headers: { Authorization: `Bearer ${this.getToken()}` },
       });
     } else {
@@ -103,18 +122,29 @@ export class AuthenticationService {
     return this.request('get', 'user/profile');
   }
 
-  public update(user: UserDetails): Observable<any> {
+  public updateUser(user: UserDetails): Observable<any> {
     return this.request('post', 'user/update', user);
   }
 
-  public invite(user: TokenPayload): Observable<any> {
-    return this.request('post', 'user/invite', user);
+  public addFriend(data: FriendDetails): Observable<any> {
+    return this.request('post', 'user/add-friend', data);
+  }
+
+  public createAndAddFriend(data: TokenPayload): Observable<any> {
+    return this.request('post', 'user/create-add-friend', data);
   }
 
   public users(): Observable<any> {
     return this.request('get', 'user/list');
   }
 
+  public updateFriendship(friendship: FriendshipDetails): Observable<any> {
+    return this.request('post', 'friendship/update', friendship);
+  }
+
+  public deleteFriendship(_id: string): Observable<any> {
+    return this.request('post', 'friendship/delete', _id);
+  }
 
   public logout(): void {
     this.token = '';
