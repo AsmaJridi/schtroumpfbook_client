@@ -37,6 +37,10 @@ export interface TokenPayload {
   relationship?: string;
 }
 
+export interface Identity {
+  _id: string;
+}
+
 @Injectable()
 export class AuthenticationService {
   private token: string | null = null;
@@ -84,7 +88,7 @@ export class AuthenticationService {
       | UserDetails
       | FriendshipDetails
       | FriendDetails
-      | string
+      | Identity
   ): Observable<any> {
     let base;
 
@@ -142,8 +146,8 @@ export class AuthenticationService {
     return this.request('post', 'friendship/update', friendship);
   }
 
-  public deleteFriendship(_id: string): Observable<any> {
-    return this.request('post', 'friendship/delete', _id);
+  public deleteFriendship(id: Identity): Observable<any> {
+    return this.request('post', 'friendship/delete',  id );
   }
 
   public logout(): void {

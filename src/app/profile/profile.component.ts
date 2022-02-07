@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {
   AuthenticationService,
   FriendDetails,
+  FriendshipDetails,
   TokenPayload,
   UserDetails,
 } from '../authentication.service';
@@ -38,7 +39,7 @@ export class ProfileComponent implements OnInit {
     'Enchanteur',
   ];
   // la liste du select des relations
-  RELATIONSHIPS: string[] = ['Famille', 'Amis', 'Collègues'];
+  RELATIONSHIPS: string[] = ['Famille', 'Amis', 'Collègue'];
   //le nouveau utilisateur
   newUserModel: TokenPayload = {
     email: '',
@@ -46,7 +47,6 @@ export class ProfileComponent implements OnInit {
     password: '',
     relationship: '',
   };
- 
 
   message: string = '';
   constructor(private auth: AuthenticationService) {}
@@ -60,9 +60,37 @@ export class ProfileComponent implements OnInit {
         console.error(err);
       }
     );
+    this.getUsers();
+  }
+  // Actualiser la liste des utilisateurs
+  getUsers() {
     this.auth.users().subscribe(
       (users) => {
-        this.users = users;
+        const nonFriendUsers: UserDetails[] = [];
+
+        users.map((user: UserDetails) => {
+          if (
+            this.userModel.friendships === null ||
+            this.userModel.friendships.length === 0
+          ) {
+            nonFriendUsers.push(user);
+          } else {
+            let isFriend = false;
+            this.userModel.friendships.map((friendship: FriendshipDetails) => {
+              if (
+                friendship.requester._id === user._id ||
+                friendship.recipient._id === user._id
+              ) {
+                isFriend = true;
+              }
+            });
+            if (!isFriend) {
+              nonFriendUsers.push(user);
+            }
+          }
+        });
+
+        this.users = [...nonFriendUsers];
       },
       (err) => {
         console.error(err);
@@ -85,10 +113,12 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-   removeFriendship(id: string) {
-    this.auth.deleteFriendship(id).subscribe(
+  removeFriendship(id: string) {
+    this.auth.deleteFriendship({ _id: id }).subscribe(
       (user) => {
         this.userModel = user;
+
+        this.getUsers();
         this.message = 'Ami supprimé';
       },
       (err) => {
@@ -105,6 +135,7 @@ export class ProfileComponent implements OnInit {
           _id: '',
           relationship: '',
         };
+        this.getUsers();
         this.message = "Utilisateur ajouté à la liste d'amis";
       },
 
@@ -115,6 +146,7 @@ export class ProfileComponent implements OnInit {
   }
 
   createAndAddFriend() {
+    console.log(this.newUserModel);
     this.auth.createAndAddFriend(this.newUserModel).subscribe(
       (user) => {
         this.userModel = user;
@@ -124,6 +156,7 @@ export class ProfileComponent implements OnInit {
           password: '',
           relationship: '',
         };
+        this.getUsers();
         this.message = "Utilisateur créé et ajouté à la liste d'amis";
       },
 

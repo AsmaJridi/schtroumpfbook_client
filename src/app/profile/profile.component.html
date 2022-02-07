@@ -2,7 +2,8 @@
   <div class="row">
     <div class="col-6"><img src="../assets/images/4.jpeg" width="100%" /></div>
     <div class="col-6">
-      <h1 class="form-signin-heading mt-4 mb-4">Mon profil</h1>
+      <h1 class="form-signin-heading mt-4 mb-4">La Maison</h1>
+      <h3>Mes Infos</h3>
       <label for="name" class="form-label">Nom complet</label>
       <div class="input-group mb-3">
         <input
@@ -37,35 +38,76 @@
           </option>
         </select>
       </div>
+
       <button class="mt-2" (click)="updateUser()" class="btn btn-primary">
         Sauvegarder
       </button>
-      <hr class="mb-3 mt-3" />
-      <label for="friends" class="form-label"><b>Les amis</b></label>
+
+      <hr class="mb-4 mt-4" />
+
+      <h3>Les amis</h3>
+
       <table class="table">
+
         <thead>
           <tr>
+            <th scope="col"></th>
             <th scope="col">Nom complet</th>
             <th scope="col">Adresse email</th>
             <th scope="col">Role</th>
             <th scope="col">Relation</th>
             <th scope="col">Statut</th>
+            <th scope="col">Supprimer</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let friendship of userModel.friendships; index as i">
-            <ng-container *ngIf="friendship.recipient">
+            <ng-container *ngIf="friendship.requester._id != userModel._id">
+              <td><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#007e33" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+              </svg></td>
+              <td>{{ friendship.requester.name }}</td>
+              <td>{{ friendship.requester.email }}</td>
+              <td>{{ friendship.requester.role }}</td>
+              <td>{{ friendship.relationship }}</td>
+
+              <td>
+                <button *ngIf="friendship.status === 0" class="btn btn-success">
+                  Accepter
+                </button>
+                <span *ngIf="friendship.status === 1">Amis</span>
+              </td>
+              <td>
+                <button
+                  class="btn btn-danger"
+                  (click)="removeFriendship(friendship._id)"
+                >
+                  Supprimer
+                </button>
+              </td>
+            </ng-container>
+            <ng-container *ngIf="friendship.recipient._id != userModel._id">
+              <td><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#cc0000" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+              </svg></td>
               <td>{{ friendship.recipient.name }}</td>
               <td>{{ friendship.recipient.email }}</td>
               <td>{{ friendship.recipient.role }}</td>
               <td>{{ friendship.relationship }}</td>
 
               <td>
+                <button *ngIf="friendship.status === 0" class="btn btn-warning">
+                 Attente 
+                </button>
+                <span *ngIf="friendship.status === 1">Amis</span>
+              </td>
+
+              <td>
                 <button
-                  (click)="removeFriendship(friendship._id)"
                   class="btn btn-danger"
+                  (click)="removeFriendship(friendship._id)"
                 >
-                  {{ friendship.status }}
+                  Supprimer
                 </button>
               </td>
             </ng-container>
@@ -73,9 +115,11 @@
         </tbody>
       </table>
 
-      <label for="newFriendModel" class="form-label"
-        ><b>Inviter un ami</b></label
-      >
+      <hr class="mb-4 mt-4" />
+
+      <h3>Inviter un ami</h3>
+
+      <label class="form-label">Utilisateur</label>
       <div class="input-group mb-3">
         <select
           [(ngModel)]="newFriendModel._id"
@@ -109,66 +153,65 @@
       </div>
 
       <button class="mt-2" (click)="addFriend()" class="btn btn-primary">
-        Inviter un ami
+        Inviter
       </button>
 
-      <hr class="mb-3 mt-3" />
+      <hr class="mb-4 mt-4" />
 
-      <label for="newFriendModel" class="form-label"
-        ><b>Ajouter un utilisateur</b></label
-      >
-      <form (submit)="createAndAddFriend()">
-        <div class="form-group">
-          <label for="name">Nom complet</label>
-          <input
-            type="text"
-            class="form-control"
-            name="name"
-            placeholder="Enter your name"
-            [(ngModel)]="newUserModel.name"
-          />
-        </div>
-        <div class="form-group">
-          <label for="email">Adresse email</label>
-          <input
-            type="email"
-            class="form-control"
-            name="email"
-            placeholder="Enter email"
-            [(ngModel)]="newUserModel.email"
-          />
-        </div>
-        <div class="form-group">
-          <label for="password">Mot magique</label>
-          <input
-            type="password"
-            class="form-control"
-            name="password"
-            placeholder="Password"
-            [(ngModel)]="newUserModel.password"
-          />
-        </div>
-        <div class="form-group">
-          <label for="relationship" class="form-label">Relation</label>
-          <div class="input-group mb-3">
-            <select
-              [(ngModel)]="newUserModel.relationship"
-              class="form-select form-select-lg mb-3"
-              aria-label="Relationship"
-            >
-              <option value="">Sélectionner</option>
-              <option
-                *ngFor="let relationship of RELATIONSHIPS; index as i"
-                value="{{ relationship }}"
-              >
-                {{ relationship }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-      </form>
-      <hr class="mb-3 mt-3" />
+      <h3>Ajouter un utilisateur et l'inviter</h3>
+
+      <div class="form-group">
+        <label for="name">Nom complet</label>
+        <input
+          type="text"
+          class="form-control"
+          name="name"
+          placeholder="Enter your name"
+          [(ngModel)]="newUserModel.name"
+        />
+      </div>
+      <div class="form-group">
+        <label for="email">Adresse email</label>
+        <input
+          type="email"
+          class="form-control"
+          name="email"
+          placeholder="Enter email"
+          [(ngModel)]="newUserModel.email"
+        />
+      </div>
+      <div class="form-group">
+        <label for="password">Mot magique</label>
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          placeholder="Password"
+          [(ngModel)]="newUserModel.password"
+        />
+      </div>
+      <div class="form-group">
+        <label for="relationship" class="form-label">Relation</label>
+        <br />
+        <select
+          [(ngModel)]="newUserModel.relationship"
+          class="form-select form-select-lg mb-3"
+          aria-label="Relationship"
+        >
+          <option value="">Sélectionner</option>
+          <option
+            *ngFor="let relationship of RELATIONSHIPS; index as i"
+            value="{{ relationship }}"
+          >
+            {{ relationship }}
+          </option>
+        </select>
+      </div>
+      <button (click)="createAndAddFriend()" class="btn btn-primary">
+        Ajouter et inviter
+      </button>
+
+      <hr class="mb-4 mt-4" />
       <div *ngIf="message != ''" class="mt-2">
         <ngb-alert [dismissible]="false" type="success">
           <strong>Info:</strong> {{ message }}
